@@ -1,0 +1,51 @@
+{{define "base"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/home/student/groupie_treker/ui/static/style.css">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Rick and Morty API</h1>
+    
+    <div id="characters"></div>
+    
+    <script>
+        function getCharacters() {
+            fetch('https://rickandmortyapi.com/api/character')
+                .then(response => response.json())
+                .then(data => {
+                    processCharacters(data);
+                })
+                .catch(error => {
+                    console.log('Error occurred:', error);
+                });
+        }
+        
+        function processCharacters(data) {
+            const charactersDiv = document.getElementById('characters');
+            charactersDiv.innerHTML = '';
+            
+            data.results.forEach(character => {
+                const characterDiv = document.createElement('div');
+                characterDiv.innerHTML = `
+                    <h2>${character.name}</h2>
+                    <p>Status: ${character.status}</p>
+                    <p>Species: ${character.species}</p>
+                    <hr>
+                `;
+                
+                charactersDiv.appendChild(characterDiv);
+            });
+        }
+        
+        getCharacters();
+    </script>
+    {{template "main" .}}
+    {{template "footer" .}}
+</body>
+</html>
+{{end}}
