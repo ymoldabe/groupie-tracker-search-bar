@@ -1,6 +1,19 @@
 {{template "base" .}}
 {{define "main"}}
-{{range .}}
-<!-- <img src="{{.IMAGE}}" alt=""> -->
-{{end}}
+<header>
+    <h1>Groupie Tracker</h1>
+</header>
+
+<div class="content">
+    <h2>Artists</h2>
+    <div class="artist-container">
+        {{range .}}
+            <div class="artist">
+                <img src="{{.IMAGE}}" alt="{{.NAME}}">
+                <h3 >{{.NAME}}</h3>
+            </div>
+        {{end}}
+    </div>
+</div>
+
 {{end}}

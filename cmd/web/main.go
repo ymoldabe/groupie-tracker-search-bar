@@ -22,12 +22,12 @@ type Artist struct {
 
 func main() {
 	mux := http.NewServeMux()
+	styles := http.FileServer(http.Dir("/home/student/groupie_treker/ui/static/"))
+	mux.Handle("/static/", http.StripPrefix("/static/", styles))
 	mux.HandleFunc("/", group)
-	log.Println("go to run http://localhost:8000/")
+	log.Println("Go to run http://localhost:8000/")
 	err := http.ListenAndServe(":8000", mux)
 	log.Fatal(err)
-	styles := http.FileServer(http.Dir("/home/student/groupie_treker/ui/static/style.css"))
-	mux.Handle("/styles/", http.StripPrefix("/styles/", styles))
 }
 
 func group(w http.ResponseWriter, r *http.Request) {
