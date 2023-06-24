@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strconv"
 	"text/template"
 )
 
@@ -25,9 +26,52 @@ func main() {
 	styles := http.FileServer(http.Dir("/home/student/groupie_treker/ui/static/"))
 	mux.Handle("/static/", http.StripPrefix("/static/", styles))
 	mux.HandleFunc("/", group)
+	mux.HandleFunc("/artist", artist)
 	log.Println("Go to run http://localhost:8000/")
 	err := http.ListenAndServe(":8000", mux)
 	log.Fatal(err)
+}
+
+func artist(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "GET" {
+		Error(w, http.StatusBadRequest)
+		return
+	}
+	checkID, err := strconv.Atoi(r.URL.Query().Get("id"))
+	if err != nil || checkID < 1 {
+		Error(w, http.StatusNotFound)
+		return
+	}
+	id := strconv.Itoa(checkID)
+	artistData := Artist{}
+	urlWay := "https://groupietrackers.herokuapp.com/api/artists" + "/" + id
+	json4ik, err := http.Get(urlWay)
+	if err != nil {
+		Error(w, http.StatusInternalServerError)
+		return
+	}
+	defer json4ik.Body.Close()
+
+	body, err := ioutil.ReadAll(json4ik.Body)
+	if err != nil {
+		Error(w, http.StatusInternalServerError)
+		return
+	}
+
+	err = json.Unmarshal([]byte(body), &artistData)
+	if err != nil {
+		Error(w, http.StatusInternalServerError)
+		return
+	}
+	files := []string{
+		"/home/student/groupie_treker/ui/html/artistData.html",
+	}
+	tmpl, err := template.ParseFiles(files...)
+	if err != nil {
+		Error(w, http.StatusInternalServerError)
+		return
+	}
+	err = tmpl.Execute(w, artistData)
 }
 
 func group(w http.ResponseWriter, r *http.Request) {
@@ -40,7 +84,7 @@ func group(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	artistDATA := []Artist{}
+	groups := []Artist{}
 
 	urlWay := "https://groupietrackers.herokuapp.com/api/artists"
 
@@ -57,7 +101,7 @@ func group(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = json.Unmarshal([]byte(body), &artistDATA)
+	err = json.Unmarshal([]byte(body), &groups)
 	if err != nil {
 		Error(w, http.StatusInternalServerError)
 		return
@@ -72,7 +116,5 @@ func group(w http.ResponseWriter, r *http.Request) {
 		Error(w, http.StatusInternalServerError)
 		return
 	}
-	err = tmpl.Execute(w, artistDATA)
+	err = tmpl.Execute(w, groups)
 }
-
-// id := r.URL.Query().Get("id")

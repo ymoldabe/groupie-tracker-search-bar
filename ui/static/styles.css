@@ -75,6 +75,7 @@ footer {
 }
 
 .homeButton {
+    font-size: 500px;
     display: block;
     width: 100px;
     margin: 20px auto;
