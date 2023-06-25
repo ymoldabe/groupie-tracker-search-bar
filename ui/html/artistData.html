@@ -1,13 +1,174 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <title>Artist Data</title>
+  <style>
+    body {
+      background-color: #f2f2f2;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      padding: 0;
+    }
+
+    .scrool{
+        /* background-color: aqua; */
+        max-height: 400px;
+        overflow-y: scroll;
+        overflow-x: scroll;
+    }
+    .container {
+      background-color: #ccc;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      animation: fade-in 1s ease;
+      max-width: 600px;
+      width: 90%;
+      max-height: 800px;
+    }
+
+    @keyframes fade-in {
+      0% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+
+    .image {
+        border-radius: 90%;
+      max-width: 100%;
+      margin-bottom: 20px;
+    }
+
+    .name {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .members {
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+
+    .creation-date {
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+
+    .first-album {
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+
+    .relations {
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+
+    .dates-locations {
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+
+    @media only screen and (max-width: 420px)  {
+        
+     
+    .scrool{
+        /* background-color: aqua; */
+        max-height: 350px;
+        overflow-y: scroll;
+        overflow-x: scroll;
+    }
+      .container {
+        padding: 10px;
+      }
+
+      .image {
+        border-radius: 90%;
+        margin-bottom: 10px;
+      }
+
+      .name {
+        font-size: 20px;
+        margin-bottom: 5px;
+      }
+
+      .members,
+      .creation-date,
+      .first-album,
+      .relations,
+      .dates-locations {
+        font-size: 14px;
+        margin-bottom: 5px;
+      }
+    }
+    @media only screen and (max-height: 890px)  {
+        
+     
+        .scrool{
+            /* background-color: aqua; */
+            max-height: 350px;
+            overflow-y: scroll;
+            overflow-x: scroll;
+        }
+          .container {
+            padding: 20px;
+          }
+    
+          .image {
+            border-radius: 90%;
+            margin-bottom: 10px;
+          }
+    
+          .name {
+            font-size: 20px;
+            margin-bottom: 5px;
+          }
+    
+          .members,
+          .creation-date,
+          .first-album,
+          .relations,
+          .dates-locations {
+            font-size: 14px;
+            margin-bottom: 5px;
+          }
+        }
+  </style>
 </head>
 <body>
-    <h1>000</h1>
-    <img src="{{.IMAGE}}" alt="">
+    <div class="container">
+      <img class="image" src="{{.IMAGE}}" alt="Artist Image">
+    <div class="scrool">
+    <div class="name">{{.NAME}}</div>
+    <div class="members">
+      Members:
+      {{range .MEMBERS}}
+        {{.}}<br>
+      {{end}}
+    </div>
+    <div class="creation-date">Creation Date: {{.CREATION_DATE}}</div>
+    <div class="first-album">First Album: {{.FIRST_ALBUM}}</div>
+    <div class="dates-locations">
+      Dates and Locations:
+      <ul>
+        {{range $date, $locations := .LOCATION_AND_DATES}}
+          <li>{{$date}}:
+            <ul>
+              {{range $index, $location := $locations}}
+                <li>{{$location}}</li>
+              {{end}}
+            </ul>
+          </li>
+        {{end}}
+      </ul>
+    </div>
+    </div>
+  </div>
 </body>
 </html>
