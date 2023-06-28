@@ -19,10 +19,21 @@ type Artist struct {
 }
 
 type Data_group struct {
-	NAME          string   `json:"name"`
-	MEMBERS       []string `json:"members"`
-	CREATION_DATE int      `json:"creationDate"`
-	FIRST_ALBUM   string   `json:"firstAlbum"`
+	NAME               string   `json:"name"`
+	MEMBERS            []string `json:"members"`
+	LOCATION_AND_DATES Relations
+	CREATION_DATE      int    `json:"creationDate"`
+	FIRST_ALBUM        string `json:"firstAlbum"`
+	RELATIONS          string `json:"relations"`
+}
+
+type Relations struct {
+	LocationDates map[string][]string `json:"datesLocations"`
+}
+
+type AllDates struct {
+	Relations
+	Data_group
 }
 
 type Coincidence struct {
