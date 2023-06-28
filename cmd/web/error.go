@@ -17,7 +17,7 @@ func Error(w http.ResponseWriter, code int) {
 		ErrorMess: http.StatusText(code),
 	}
 	w.WriteHeader(code)
-	tmpl, err := template.ParseFiles("/home/student/groupie_treker/ui/html/error.html")
+	tmpl, err := template.ParseFiles("./ui/html/error.html")
 	if err != nil {
 		log.Fatal(err)
 		return

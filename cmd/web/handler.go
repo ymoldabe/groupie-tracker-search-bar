@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -40,7 +41,7 @@ func artist(w http.ResponseWriter, r *http.Request) {
 		Error(w, http.StatusInternalServerError)
 		return
 	}
-	files := "/home/student/groupie_treker/ui/html/artistData.html"
+	files := "./ui/html/artistData.html"
 	tmpl, err := template.ParseFiles(files)
 	if err != nil {
 		Error(w, http.StatusInternalServerError)
@@ -50,10 +51,6 @@ func artist(w http.ResponseWriter, r *http.Request) {
 }
 
 func group(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "GET" {
-		Error(w, http.StatusBadRequest)
-		return
-	}
 	if r.URL.Path != "/" {
 		Error(w, 404)
 		return
@@ -73,16 +70,37 @@ func group(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	files := []string{
-		"/home/student/groupie_treker/ui/html/body_home.html",
-		"/home/student/groupie_treker/ui/html/footer_partial.html",
-		"/home/student/groupie_treker/ui/html/front.base.html",
+		"./ui/html/body_home.html",
+		"./ui/html/footer_partial.html",
+		"./ui/html/front.base.html",
 	}
 	tmpl, err := template.ParseFiles(files...)
 	if err != nil {
 		Error(w, http.StatusInternalServerError)
 		return
 	}
-	err = tmpl.Execute(w, groups)
+	if r.Method == "GET" {
+		err = tmpl.Execute(w, groups)
+	} else if r.Method == "POST" {
+		find := r.FormValue("search")
+		fmt.Println(find)
+
+		date_group := []Data_group{}
+		err = json.Unmarshal([]byte(jsonData), &date_group)
+		if err != nil {
+			Error(w, http.StatusInternalServerError)
+			return
+		}
+		Check_coincidence(date_group, find)
+
+	}
+}
+
+func Check_coincidence(data []Data_group, find string) {
+	//res := []Coincidence{}
+	for _, v := range data {
+	}
+
 }
 
 func getURL(url string) (js []byte, err error) {

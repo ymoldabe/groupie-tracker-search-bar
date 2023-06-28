@@ -18,9 +18,21 @@ type Artist struct {
 	LOCATION_AND_DATES map[string][]string `json:"datesLocations"`
 }
 
+type Data_group struct {
+	NAME          string   `json:"name"`
+	MEMBERS       []string `json:"members"`
+	CREATION_DATE int      `json:"creationDate"`
+	FIRST_ALBUM   string   `json:"firstAlbum"`
+}
+
+type Coincidence struct {
+	Artist
+	Data_group
+}
+
 func main() {
 	mux := http.NewServeMux()
-	styles := http.FileServer(http.Dir("/home/student/groupie_treker/ui/static/"))
+	styles := http.FileServer(http.Dir("./ui/static/"))
 	mux.Handle("/static/", http.StripPrefix("/static/", styles))
 	mux.HandleFunc("/", group)
 	mux.HandleFunc("/artist", artist)

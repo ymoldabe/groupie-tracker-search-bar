@@ -9,7 +9,19 @@
     <title>Document</title>
 </head>
 <body>
-    {{template "main" .}}
+    <header>
+        <h1>Groupie Tracker</h1>
+    </header>
+    <div class="topnav">
+        <a class="active" href="/">Home</a>
+        <div class="search-container">
+          <form action="/" method="POST">
+            <input type="text" placeholder="Search.." name="search">
+            <button type="submit"><i class="fa fa-search"></i></button>
+          </form>
+        </div>
+      </div>
+      {{template "main" .}}
     {{template "footer" .}}
 </body>
 </html>
