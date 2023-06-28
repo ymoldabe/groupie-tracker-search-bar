@@ -91,29 +91,83 @@ func group(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		Check_coincidence(w, find, all_data_group)
+		selections := Check_coincidence(w, find, all_data_group)
+		err = tmpl.Execute(w, selections)
 
+	} else if r.Method == "GET" {
+		err = tmpl.Execute(w, groups)
 	}
-	err = tmpl.Execute(w, groups)
 }
 
-func Check_coincidence(w http.ResponseWriter, find string, all_data_group []Data_group) {
-	// res := []Coincidence{}
+func Check_coincidence(w http.ResponseWriter, find string, all_data_group []Data_group) []Artist {
+	res := []Artist{}
 	for _, v := range all_data_group {
 		for _, j := range v.MEMBERS {
 			if strings.Contains(strings.ToLower(j), strings.ToLower(find)) {
-				fmt.Println(v)
+				res = append(res, Artist{
+					ID:                 v.ID,
+					IMAGE:              v.IMAGE,
+					NAME:               v.NAME,
+					MEMBERS:            v.MEMBERS,
+					LOCATION_AND_DATES: v.LOCATION_AND_DATES.LocationDates,
+					CREATION_DATE:      v.CREATION_DATE,
+					FIRST_ALBUM:        v.FIRST_ALBUM,
+					RELATIONS:          v.RELATIONS,
+				})
+				break
+			}
+		}
+		for key, _ := range v.LOCATION_AND_DATES.LocationDates {
+			if strings.Contains(strings.ToLower(key), strings.ToLower(find)) {
+				res = append(res, Artist{
+					ID:                 v.ID,
+					IMAGE:              v.IMAGE,
+					NAME:               v.NAME,
+					MEMBERS:            v.MEMBERS,
+					LOCATION_AND_DATES: v.LOCATION_AND_DATES.LocationDates,
+					CREATION_DATE:      v.CREATION_DATE,
+					FIRST_ALBUM:        v.FIRST_ALBUM,
+					RELATIONS:          v.RELATIONS,
+				})
 				break
 			}
 		}
 		if strings.Contains(strings.ToLower(v.NAME), strings.ToLower(find)) {
-			// fmt.Println(v.NAME)
-		} else if strings.Contains(strings.ToLower(v.FIRST_ALBUM), strings.ToLower(find)) {
-			// fmt.Println(v.RELATIONS)
+			res = append(res, Artist{
+				ID:                 v.ID,
+				IMAGE:              v.IMAGE,
+				NAME:               v.NAME,
+				MEMBERS:            v.MEMBERS,
+				LOCATION_AND_DATES: v.LOCATION_AND_DATES.LocationDates,
+				CREATION_DATE:      v.CREATION_DATE,
+				FIRST_ALBUM:        v.FIRST_ALBUM,
+				RELATIONS:          v.RELATIONS,
+			})
 		} else if strings.Contains((strconv.Itoa(v.CREATION_DATE)), (find)) {
-			fmt.Println(v.CREATION_DATE, v.NAME)
+			res = append(res, Artist{
+				ID:                 v.ID,
+				IMAGE:              v.IMAGE,
+				NAME:               v.NAME,
+				MEMBERS:            v.MEMBERS,
+				LOCATION_AND_DATES: v.LOCATION_AND_DATES.LocationDates,
+				CREATION_DATE:      v.CREATION_DATE,
+				FIRST_ALBUM:        v.FIRST_ALBUM,
+				RELATIONS:          v.RELATIONS,
+			})
+		} else if strings.Contains((v.FIRST_ALBUM), (find)) {
+			res = append(res, Artist{
+				ID:                 v.ID,
+				IMAGE:              v.IMAGE,
+				NAME:               v.NAME,
+				MEMBERS:            v.MEMBERS,
+				LOCATION_AND_DATES: v.LOCATION_AND_DATES.LocationDates,
+				CREATION_DATE:      v.CREATION_DATE,
+				FIRST_ALBUM:        v.FIRST_ALBUM,
+				RELATIONS:          v.RELATIONS,
+			})
 		}
 	}
+	return res
 }
 
 func getURL(url string) (js []byte, err error) {
@@ -167,6 +221,8 @@ func Add_stuckt(w http.ResponseWriter) ([]Data_group, error) {
 
 			mu.Lock()
 			res = append(res, Data_group{
+				ID:                 v.ID,
+				IMAGE:              v.IMAGE,
 				NAME:               v.NAME,
 				MEMBERS:            v.MEMBERS,
 				LOCATION_AND_DATES: delete,

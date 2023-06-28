@@ -19,6 +19,8 @@ type Artist struct {
 }
 
 type Data_group struct {
+	ID                 int      `json:"id"`
+	IMAGE              string   `json:"image"`
 	NAME               string   `json:"name"`
 	MEMBERS            []string `json:"members"`
 	LOCATION_AND_DATES Relations
@@ -29,11 +31,6 @@ type Data_group struct {
 
 type Relations struct {
 	LocationDates map[string][]string `json:"datesLocations"`
-}
-
-type AllDates struct {
-	Relations
-	Data_group
 }
 
 type Coincidence struct {
