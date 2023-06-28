@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"sync"
 	"text/template"
 )
 
@@ -80,35 +81,28 @@ func group(w http.ResponseWriter, r *http.Request) {
 		Error(w, http.StatusInternalServerError)
 		return
 	}
-	if r.Method == "GET" {
-		err = tmpl.Execute(w, groups)
-	} else if r.Method == "POST" {
+
+	if r.Method == "POST" {
 		find := r.FormValue("search")
 		fmt.Println(find)
-		all_data := []AllDates{}
-
-		err = json.Unmarshal([]byte(jsonData), &all_data)
+		all_data_group, err := Add_stuckt(w)
 		if err != nil {
 			Error(w, http.StatusInternalServerError)
-			fmt.Println(9)
-
 			return
 		}
-		Add_stuckt(w)
 
-		Check_coincidence(w, all_data, find)
+		Check_coincidence(w, find, all_data_group)
 
 	}
+	err = tmpl.Execute(w, groups)
 }
 
-func Check_coincidence(w http.ResponseWriter, data []AllDates, find string) {
+func Check_coincidence(w http.ResponseWriter, find string, all_data_group []Data_group) {
 	// res := []Coincidence{}
-	// created_date, _ := strconv.Atoi(find)
-
-	for _, v := range data {
+	for _, v := range all_data_group {
 		for _, j := range v.MEMBERS {
 			if strings.Contains(strings.ToLower(j), strings.ToLower(find)) {
-				fmt.Println(j)
+				fmt.Println(v)
 				break
 			}
 		}
@@ -139,35 +133,86 @@ func getURL(url string) (js []byte, err error) {
 
 func Add_stuckt(w http.ResponseWriter) ([]Data_group, error) {
 	res := []Data_group{}
-	delete := Relations{}
-	res_stuckt := []Data_group{}
 	jsonData, err := getURL("https://groupietrackers.herokuapp.com/api/artists")
 	if err != nil {
-		return []Data_group{}, err
+		return nil, err
 	}
+
+	var wg sync.WaitGroup
+	var mu sync.Mutex
+
+	var res_stuckt []Data_group
 	err = json.Unmarshal(jsonData, &res_stuckt)
 	if err != nil {
-		return []Data_group{}, err
+		return nil, err
 	}
-	for _, v := range res_stuckt {
-		jsonData1, err := getURL(v.RELATIONS)
-		if err != nil {
-			return []Data_group{}, err
-		}
-		err = json.Unmarshal([]byte(jsonData1), &delete)
-		if err != nil {
-			return []Data_group{}, err
-		}
-		res = append(res, Data_group{
-			NAME:               v.NAME,
-			MEMBERS:            v.MEMBERS,
-			LOCATION_AND_DATES: delete,
-			CREATION_DATE:      v.CREATION_DATE,
-			FIRST_ALBUM:        v.FIRST_ALBUM,
-			RELATIONS:          v.RELATIONS,
-		})
-		delete = Relations{}
 
+	for _, v := range res_stuckt {
+		wg.Add(1)
+		go func(v Data_group) {
+			defer wg.Done()
+
+			jsonData1, err := getURL(v.RELATIONS)
+			if err != nil {
+				// Обработка ошибок
+				return
+			}
+
+			var delete Relations
+			err = json.Unmarshal([]byte(jsonData1), &delete)
+			if err != nil {
+				// Обработка ошибок
+				return
+			}
+
+			mu.Lock()
+			res = append(res, Data_group{
+				NAME:               v.NAME,
+				MEMBERS:            v.MEMBERS,
+				LOCATION_AND_DATES: delete,
+				CREATION_DATE:      v.CREATION_DATE,
+				FIRST_ALBUM:        v.FIRST_ALBUM,
+				RELATIONS:          v.RELATIONS,
+			})
+			mu.Unlock()
+		}(v)
 	}
+
+	wg.Wait()
 	return res, nil
 }
+
+// func Add_stuckt(w http.ResponseWriter) ([]Data_group, error) {
+// 	res := []Data_group{}
+// 	delete := Relations{}
+// 	res_stuckt := []Data_group{}
+// 	jsonData, err := getURL("https://groupietrackers.herokuapp.com/api/artists")
+// 	if err != nil {
+// 		return []Data_group{}, err
+// 	}
+// 	err = json.Unmarshal(jsonData, &res_stuckt)
+// 	if err != nil {
+// 		return []Data_group{}, err
+// 	}
+// 	for _, v := range res_stuckt {
+// 		jsonData1, err := getURL(v.RELATIONS)
+// 		if err != nil {
+// 			return []Data_group{}, err
+// 		}
+// 		err = json.Unmarshal([]byte(jsonData1), &delete)
+// 		if err != nil {
+// 			return []Data_group{}, err
+// 		}
+// 		res = append(res, Data_group{
+// 			NAME:               v.NAME,
+// 			MEMBERS:            v.MEMBERS,
+// 			LOCATION_AND_DATES: delete,
+// 			CREATION_DATE:      v.CREATION_DATE,
+// 			FIRST_ALBUM:        v.FIRST_ALBUM,
+// 			RELATIONS:          v.RELATIONS,
+// 		})
+// 		delete = Relations{}
+
+// 	}
+// 	return res, nil
+// }
