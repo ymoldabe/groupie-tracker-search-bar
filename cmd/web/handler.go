@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"sync"
 	"text/template"
 )
 
@@ -93,16 +94,16 @@ func group(w http.ResponseWriter, r *http.Request) {
 		}
 
 		selections := Check_coincidence(w, find, all_data_group)
-		selections2 := Coincidence{
-			Artist:   groups,
-			Artists2: selections,
-		}
-		tmpl, err := template.ParseFiles("/home/student/groupie-tracker-search-bar/ui/html/search.html")
+		// selections2 := Coincidence{
+		// 	Artist:   groups,
+		// 	Artists2: selections,
+		// }
+		tmpl, err := template.ParseFiles("./ui/html/search.html")
 		if err != nil {
 			Error(w, http.StatusInternalServerError)
 			return
 		}
-		err = tmpl.Execute(w, selections2)
+		err = tmpl.Execute(w, selections)
 
 	}
 }
@@ -111,6 +112,23 @@ func Check_coincidence(w http.ResponseWriter, find string, all_data_group []Data
 	res := []Artists2{}
 	flag := false
 	for _, v := range all_data_group {
+		if strings.Contains(strings.ToLower(v.NAME), strings.ToLower(find)) ||
+			strings.Contains(strconv.Itoa(v.CREATION_DATE), find) ||
+			strings.Contains(v.FIRST_ALBUM, find) {
+			fmt.Println(v)
+			res = append(res, Artists2{
+				ID:                 v.ID,
+				IMAGE:              v.IMAGE,
+				NAME:               v.NAME,
+				MEMBERS:            v.MEMBERS,
+				LOCATION_AND_DATES: v.LOCATION_AND_DATES.LocationDates,
+				CREATION_DATE:      v.CREATION_DATE,
+				FIRST_ALBUM:        v.FIRST_ALBUM,
+				RELATIONS:          v.RELATIONS,
+			})
+			continue
+		}
+
 		for _, j := range v.MEMBERS {
 			if strings.Contains(strings.ToLower(j), strings.ToLower(find)) {
 				flag = true
@@ -128,13 +146,13 @@ func Check_coincidence(w http.ResponseWriter, find string, all_data_group []Data
 			}
 		}
 		if flag {
-			continue
 			flag = false
+			continue
 		}
-		for key, _ := range v.LOCATION_AND_DATES.LocationDates {
+		for key := range v.LOCATION_AND_DATES.LocationDates {
 			if strings.Contains(strings.ToLower(key), strings.ToLower(find)) {
 				flag = true
-				fmt.Println(key)
+				fmt.Println(v)
 				res = append(res, Artists2{
 					ID:                 v.ID,
 					IMAGE:              v.IMAGE,
@@ -149,46 +167,10 @@ func Check_coincidence(w http.ResponseWriter, find string, all_data_group []Data
 			}
 		}
 		if flag {
-			continue
 			flag = false
-		}
-		if strings.Contains(strings.ToLower(v.NAME), strings.ToLower(find)) {
-			res = append(res, Artists2{
-				ID:                 v.ID,
-				IMAGE:              v.IMAGE,
-				NAME:               v.NAME,
-				MEMBERS:            v.MEMBERS,
-				LOCATION_AND_DATES: v.LOCATION_AND_DATES.LocationDates,
-				CREATION_DATE:      v.CREATION_DATE,
-				FIRST_ALBUM:        v.FIRST_ALBUM,
-				RELATIONS:          v.RELATIONS,
-			})
-			continue
-		} else if strings.Contains((strconv.Itoa(v.CREATION_DATE)), (find)) {
-			res = append(res, Artists2{
-				ID:                 v.ID,
-				IMAGE:              v.IMAGE,
-				NAME:               v.NAME,
-				MEMBERS:            v.MEMBERS,
-				LOCATION_AND_DATES: v.LOCATION_AND_DATES.LocationDates,
-				CREATION_DATE:      v.CREATION_DATE,
-				FIRST_ALBUM:        v.FIRST_ALBUM,
-				RELATIONS:          v.RELATIONS,
-			})
-			continue
-		} else if strings.Contains((v.FIRST_ALBUM), (find)) {
-			res = append(res, Artists2{
-				ID:                 v.ID,
-				IMAGE:              v.IMAGE,
-				NAME:               v.NAME,
-				MEMBERS:            v.MEMBERS,
-				LOCATION_AND_DATES: v.LOCATION_AND_DATES.LocationDates,
-				CREATION_DATE:      v.CREATION_DATE,
-				FIRST_ALBUM:        v.FIRST_ALBUM,
-				RELATIONS:          v.RELATIONS,
-			})
 			continue
 		}
+
 	}
 	return res
 }
@@ -208,58 +190,13 @@ func getURL(url string) (js []byte, err error) {
 	return body, err
 }
 
-func Add_stuckt(w http.ResponseWriter) ([]Data_group, error) {
-	res := []Data_group{}
-
-	jsonData, err := getURL("https://groupietrackers.herokuapp.com/api/artists")
-	if err != nil {
-		return nil, err
-	}
-
-	var res_stuckt []Data_group
-	err = json.Unmarshal(jsonData, &res_stuckt)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, v := range res_stuckt {
-		jsonData1, err := getURL(v.RELATIONS)
-		if err != nil {
-			// Handle errors
-			return nil, err
-		}
-
-		var delete Relations
-		err = json.Unmarshal([]byte(jsonData1), &delete)
-		if err != nil {
-			// Handle errors
-			return nil, err
-		}
-
-		res = append(res, Data_group{
-			ID:                 v.ID,
-			IMAGE:              v.IMAGE,
-			NAME:               v.NAME,
-			MEMBERS:            v.MEMBERS,
-			LOCATION_AND_DATES: delete,
-			CREATION_DATE:      v.CREATION_DATE,
-			FIRST_ALBUM:        v.FIRST_ALBUM,
-			RELATIONS:          v.RELATIONS,
-		})
-	}
-
-	return res, nil
-}
-
 // func Add_stuckt(w http.ResponseWriter) ([]Data_group, error) {
 // 	res := []Data_group{}
+
 // 	jsonData, err := getURL("https://groupietrackers.herokuapp.com/api/artists")
 // 	if err != nil {
 // 		return nil, err
 // 	}
-
-// 	var wg sync.WaitGroup
-// 	var mu sync.Mutex
 
 // 	var res_stuckt []Data_group
 // 	err = json.Unmarshal(jsonData, &res_stuckt)
@@ -268,41 +205,86 @@ func Add_stuckt(w http.ResponseWriter) ([]Data_group, error) {
 // 	}
 
 // 	for _, v := range res_stuckt {
-// 		wg.Add(1)
-// 		go func(v Data_group) {
-// 			defer wg.Done()
+// 		jsonData1, err := getURL(v.RELATIONS)
+// 		if err != nil {
+// 			// Handle errors
+// 			return nil, err
+// 		}
 
-// 			jsonData1, err := getURL(v.RELATIONS)
-// 			if err != nil {
-// 				// Обработка ошибок
-// 				return
-// 			}
+// 		var delete Relations
+// 		err = json.Unmarshal([]byte(jsonData1), &delete)
+// 		if err != nil {
+// 			// Handle errors
+// 			return nil, err
+// 		}
 
-// 			var delete Relations
-// 			err = json.Unmarshal([]byte(jsonData1), &delete)
-// 			if err != nil {
-// 				// Обработка ошибок
-// 				return
-// 			}
-
-// 			mu.Lock()
-// 			res = append(res, Data_group{
-// 				ID:                 v.ID,
-// 				IMAGE:              v.IMAGE,
-// 				NAME:               v.NAME,
-// 				MEMBERS:            v.MEMBERS,
-// 				LOCATION_AND_DATES: delete,
-// 				CREATION_DATE:      v.CREATION_DATE,
-// 				FIRST_ALBUM:        v.FIRST_ALBUM,
-// 				RELATIONS:          v.RELATIONS,
-// 			})
-// 			mu.Unlock()
-// 		}(v)
+// 		res = append(res, Data_group{
+// 			ID:                 v.ID,
+// 			IMAGE:              v.IMAGE,
+// 			NAME:               v.NAME,
+// 			MEMBERS:            v.MEMBERS,
+// 			LOCATION_AND_DATES: delete,
+// 			CREATION_DATE:      v.CREATION_DATE,
+// 			FIRST_ALBUM:        v.FIRST_ALBUM,
+// 			RELATIONS:          v.RELATIONS,
+// 		})
 // 	}
 
-// 	wg.Wait()
 // 	return res, nil
 // }
+
+func Add_stuckt(w http.ResponseWriter) ([]Data_group, error) {
+	res := []Data_group{}
+	jsonData, err := getURL("https://groupietrackers.herokuapp.com/api/artists")
+	if err != nil {
+		return nil, err
+	}
+
+	var wg sync.WaitGroup
+	var mu sync.Mutex
+
+	var res_stuckt []Data_group
+	err = json.Unmarshal(jsonData, &res_stuckt)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, v := range res_stuckt {
+		wg.Add(1)
+		go func(v Data_group) {
+			defer wg.Done()
+
+			jsonData1, err := getURL(v.RELATIONS)
+			if err != nil {
+				// Обработка ошибок
+				return
+			}
+
+			var delete Relations
+			err = json.Unmarshal([]byte(jsonData1), &delete)
+			if err != nil {
+				// Обработка ошибок
+				return
+			}
+
+			mu.Lock()
+			res = append(res, Data_group{
+				ID:                 v.ID,
+				IMAGE:              v.IMAGE,
+				NAME:               v.NAME,
+				MEMBERS:            v.MEMBERS,
+				LOCATION_AND_DATES: delete,
+				CREATION_DATE:      v.CREATION_DATE,
+				FIRST_ALBUM:        v.FIRST_ALBUM,
+				RELATIONS:          v.RELATIONS,
+			})
+			mu.Unlock()
+		}(v)
+	}
+
+	wg.Wait()
+	return res, nil
+}
 
 // func Add_stuckt(w http.ResponseWriter) ([]Data_group, error) {
 // 	res := []Data_group{}
