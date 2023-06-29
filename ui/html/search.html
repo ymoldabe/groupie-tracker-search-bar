@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/styles.css">
+    <title>Search Results</title>
+</head>
+<body>
+    <div class="content">
+        <h2>Artists</h2>
+        <div class="artist-container">
+            {{range .Artists2}}
+                <div class="artist">
+                    <img src="{{.IMAGE}}" alt="{{.NAME}}">
+                    <div class="a"><a class="artist_references" href="/artist?id={{.ID}}">{{.NAME}}</a></div>
+                </div>
+            {{end}}
+        </div>
+    </div>
+</body>
+</html>
+<!--  <h1>Search Results</h1>
+    {{range .Artists2}}
+    <img src="{{.IMAGE}}" alt="">
+    <div class="artist">
+        <h2>{{.NAME}}</h2>
+        <p>Genre: {{.Genre}}</p>
+        <p>Albums: {{.Albums}}</p>
+    </div>
+    {{end}} -->

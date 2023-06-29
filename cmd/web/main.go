@@ -18,6 +18,19 @@ type Artist struct {
 	LOCATION_AND_DATES map[string][]string `json:"datesLocations"`
 }
 
+type Artists2 struct {
+	ID                 int                 `json:"id"`
+	IMAGE              string              `json:"image"`
+	NAME               string              `json:"name"`
+	MEMBERS            []string            `json:"members"`
+	CREATION_DATE      int                 `json:"creationDate"`
+	FIRST_ALBUM        string              `json:"firstAlbum"`
+	LOCATIONS          string              `json:"locations"`
+	CONCERT_DATES      string              `json:"concertDates"`
+	RELATIONS          string              `json:"relations"`
+	LOCATION_AND_DATES map[string][]string `json:"datesLocations"`
+}
+
 type Data_group struct {
 	ID                 int      `json:"id"`
 	IMAGE              string   `json:"image"`
@@ -34,8 +47,8 @@ type Relations struct {
 }
 
 type Coincidence struct {
-	Artist
-	Data_group
+	Artist   []Artist
+	Artists2 []Artists2
 }
 
 func main() {
