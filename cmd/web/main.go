@@ -47,8 +47,8 @@ type Relations struct {
 }
 
 type Coincidence struct {
-	Artist   []Artist
-	Artists2 []Artists2
+	Artist     []Artist
+	Data_group []Data_group
 }
 
 func main() {

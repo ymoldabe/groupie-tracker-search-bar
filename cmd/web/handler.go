@@ -59,6 +59,11 @@ func group(w http.ResponseWriter, r *http.Request) {
 	}
 
 	groups := []Artist{}
+	all_data_group, err := Add_stuckt(w)
+	groups_ADG := Coincidence{
+		Artist:     groups,
+		Data_group: all_data_group,
+	}
 
 	jsonData, err := getURL("https://groupietrackers.herokuapp.com/api/artists")
 	if err != nil {
@@ -83,11 +88,10 @@ func group(w http.ResponseWriter, r *http.Request) {
 			Error(w, http.StatusInternalServerError)
 			return
 		}
-		err = tmpl.Execute(w, groups)
+		err = tmpl.Execute(w, groups_ADG)
 	} else if r.Method == "POST" {
 		find := r.FormValue("search")
 		fmt.Println(find)
-		all_data_group, err := Add_stuckt(w)
 		if err != nil {
 			Error(w, http.StatusInternalServerError)
 			return

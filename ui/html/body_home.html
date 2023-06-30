@@ -1,9 +1,9 @@
 {{template "base" .}}
 {{define "main"}}
 <div class="content">
-    <h2>Artists</h2>
+    <h2>Artist</h2>
     <div class="artist-container">
-        {{range .}}
+        {{range .Artist}}
             <div class="artist">
                 <img src="{{.IMAGE}}" alt="{{.NAME}}">
                 <div class="a"><a class="artist_references" href="/artist?id={{.ID}}">{{.NAME}}</a></div>

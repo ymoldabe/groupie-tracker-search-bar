@@ -16,7 +16,19 @@
         <a class="active" href="/">Home</a>
         <div class="search-container">
           <form action="/" method="POST">
-            <input type="text" placeholder="Search.." name="search">
+            <input type="text" placeholder="Search.." name="search" list = "asd">
+            <datalist id = "asd">
+              {{range .}} 
+              <option value="{{.NAME}}">{{.NAME}} - artist/band name</option>
+              {{range .MEMBERS}}
+              <option value="{{.}}">{{.}} </option>
+              {{end}}
+              <option value="{{.LOCATIONS}}">{{.LOCATIONS}} - location</option>
+              <option value="{{.FIRST_ALBUM}}">{{.FIRST_ALBUM}}</option>
+              <option value="{{.CREATION_DATE}}">{{.CREATION_DATE}} - cretion date</option>
+
+              {{end}}
+            </datalist> 
             <button type="submit"><i class="fa fa-search"></i></button>
           </form>
         </div>
