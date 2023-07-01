@@ -15,16 +15,20 @@
     <div class="topnav">
         <a class="active" href="/">Home</a>
         <div class="search-container">
-          <form action="/" method="POST">
+          <form action="/" method="POST" autocomplete="off">
             <input type="text" placeholder="Search.." name="search" list = "asd">
             <datalist id = "asd">
               {{range .}} 
               <option value="{{.NAME}}">{{.NAME}} - artist/band name</option>
               {{range .MEMBERS}}
-              <option value="{{.}}">{{.}} </option>
+              <option value="{{.}}">{{.}} - members</option>
               {{end}}
-              <option value="{{.LOCATIONS}}">{{.LOCATIONS}} - location</option>
-              <option value="{{.FIRST_ALBUM}}">{{.FIRST_ALBUM}}</option>
+              {{range $date, $locations := .LOCATION_AND_DATES_link}}
+              {{range $index, $location := $locations}}
+              <option value="{{$location}}">{{$location}} - location</option>
+              {{end}}
+              {{end}}
+              <option value="{{.FIRST_ALBUM}}">{{.FIRST_ALBUM}} - first album</option>
               <option value="{{.CREATION_DATE}}">{{.CREATION_DATE}} - cretion date</option>
 
               {{end}}

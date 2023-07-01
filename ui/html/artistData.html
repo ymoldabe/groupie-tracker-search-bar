@@ -147,6 +147,7 @@
   <header>
     <h1>Groupie Tracker</h1>
 </header>
+
 <div class="topnav">
     <a class="active" href="/">Home</a>
     <div class="search-container">
@@ -172,7 +173,7 @@
     <div class="dates-locations">
       Dates and Locations:
       <ul>
-        {{range $date, $locations := .LOCATION_AND_DATES}}
+        {{range $date, $locations := .LOCATION_AND_DATES_link}}
           <li>{{$date}}:
             <ul>
               {{range $index, $location := $locations}}

@@ -6,16 +6,17 @@ import (
 )
 
 type Artist struct {
-	ID                 int                 `json:"id"`
-	IMAGE              string              `json:"image"`
-	NAME               string              `json:"name"`
-	MEMBERS            []string            `json:"members"`
-	CREATION_DATE      int                 `json:"creationDate"`
-	FIRST_ALBUM        string              `json:"firstAlbum"`
-	LOCATIONS          string              `json:"locations"`
-	CONCERT_DATES      string              `json:"concertDates"`
-	RELATIONS          string              `json:"relations"`
-	LOCATION_AND_DATES map[string][]string `json:"datesLocations"`
+	ID                      int                 `json:"id"`
+	IMAGE                   string              `json:"image"`
+	NAME                    string              `json:"name"`
+	MEMBERS                 []string            `json:"members"`
+	CREATION_DATE           int                 `json:"creationDate"`
+	FIRST_ALBUM             string              `json:"firstAlbum"`
+	LOCATIONS               string              `json:"locations"`
+	CONCERT_DATES           string              `json:"concertDates"`
+	RELATIONS               string              `json:"relations"`
+	LOCATION_AND_DATES_link map[string][]string `json:"datesLocations"`
+	LOCATION_AND_DATES      Relations
 }
 
 type Artists2 struct {
