@@ -23,10 +23,8 @@
               {{range .MEMBERS}}
               <option value="{{.}}">{{.}} - members</option>
               {{end}}
-              {{range $date, $locations := .LOCATION_AND_DATES_link}}
-              {{range $index, $location := $locations}}
-              <option value="{{$location}}">{{$location}} - location</option>
-              {{end}}
+              {{range $date, $locations := .LOCATION_AND_DATES}}
+              <option value="{{$date}}">{{$date}} - location</option>
               {{end}}
               <option value="{{.FIRST_ALBUM}}">{{.FIRST_ALBUM}} - first album</option>
               <option value="{{.CREATION_DATE}}">{{.CREATION_DATE}} - cretion date</option>
@@ -37,8 +35,9 @@
           </form>
         </div>
       </div>
+
       {{template "main" .}}
-    {{template "footer" .}}
+      {{template "footer" .}}
 </body>
 </html>
 {{end}}

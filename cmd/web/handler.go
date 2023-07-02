@@ -60,25 +60,12 @@ func group(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// groups := []Artist{}
-	// groups_ADG := Coincidence{
-	// 	Artist:     groups,
-	// 	Data_group: all_data_group,
-	// }
-
 	jsonData1, err := getURL("https://groupietrackers.herokuapp.com/api/artists")
 	if err != nil {
 		Error(w, http.StatusInternalServerError)
 		return
 	}
 	all_data_group, err := Add_stuckt(w, jsonData1)
-	// fmt.Println(all_data_group[0])
-
-	// err = json.Unmarshal([]byte(jsonData1), &groups)
-	// if err != nil {
-	// 	Error(w, http.StatusInternalServerError)
-	// 	return
-	// }
 
 	if r.Method == "GET" {
 
@@ -102,37 +89,36 @@ func group(w http.ResponseWriter, r *http.Request) {
 		}
 
 		selections := Check_coincidence(w, find, all_data_group)
-		// selections2 := Coincidence{
-		// 	Artist:   groups,
-		// 	Artist: selections,
-		// }
+		endStruct := Coincidence{
+			all_data_group,
+			selections,
+		}
 		tmpl, err := template.ParseFiles("./ui/html/search.html")
 		if err != nil {
 			Error(w, http.StatusInternalServerError)
 			return
 		}
-		err = tmpl.Execute(w, selections)
+		err = tmpl.Execute(w, endStruct)
 
 	}
 }
 
-func Check_coincidence(w http.ResponseWriter, find string, all_data_group []Artist) []Artist {
-	res := []Artist{}
+func Check_coincidence(w http.ResponseWriter, find string, all_data_group []Artist) []Data_group {
+	res := []Data_group{}
 	flag := false
 	for _, v := range all_data_group {
 		if strings.Contains(strings.ToLower(v.NAME), strings.ToLower(find)) ||
 			strings.Contains(strconv.Itoa(v.CREATION_DATE), find) ||
 			strings.Contains(v.FIRST_ALBUM, find) {
 			// fmt.Println(v.LOCATION_AND_DATES.LocationDates)
-			res = append(res, Artist{
-				ID:                      v.ID,
-				IMAGE:                   v.IMAGE,
-				NAME:                    v.NAME,
-				MEMBERS:                 v.MEMBERS,
-				LOCATION_AND_DATES_link: v.LOCATION_AND_DATES.LocationDates,
-				CREATION_DATE:           v.CREATION_DATE,
-				FIRST_ALBUM:             v.FIRST_ALBUM,
-				RELATIONS:               v.RELATIONS,
+			res = append(res, Data_group{
+				ID:                 v.ID,
+				IMAGE:              v.IMAGE,
+				NAME:               v.NAME,
+				MEMBERS:            v.MEMBERS,
+				LOCATION_AND_DATES: v.LOCATION_AND_DATES,
+				CREATION_DATE:      v.CREATION_DATE,
+				FIRST_ALBUM:        v.FIRST_ALBUM,
 			})
 			continue
 		}
@@ -140,15 +126,14 @@ func Check_coincidence(w http.ResponseWriter, find string, all_data_group []Arti
 		for _, j := range v.MEMBERS {
 			if strings.Contains(strings.ToLower(j), strings.ToLower(find)) {
 				flag = true
-				res = append(res, Artist{
-					ID:                      v.ID,
-					IMAGE:                   v.IMAGE,
-					NAME:                    v.NAME,
-					MEMBERS:                 v.MEMBERS,
-					LOCATION_AND_DATES_link: v.LOCATION_AND_DATES.LocationDates,
-					CREATION_DATE:           v.CREATION_DATE,
-					FIRST_ALBUM:             v.FIRST_ALBUM,
-					RELATIONS:               v.RELATIONS,
+				res = append(res, Data_group{
+					ID:                 v.ID,
+					IMAGE:              v.IMAGE,
+					NAME:               v.NAME,
+					MEMBERS:            v.MEMBERS,
+					LOCATION_AND_DATES: v.LOCATION_AND_DATES,
+					CREATION_DATE:      v.CREATION_DATE,
+					FIRST_ALBUM:        v.FIRST_ALBUM,
 				})
 				break
 			}
@@ -157,19 +142,18 @@ func Check_coincidence(w http.ResponseWriter, find string, all_data_group []Arti
 			flag = false
 			continue
 		}
-		for key := range v.LOCATION_AND_DATES.LocationDates {
+		for key := range v.LOCATION_AND_DATES {
 			if strings.Contains(strings.ToLower(key), strings.ToLower(find)) {
 				flag = true
 				// fmt.Println(v)
-				res = append(res, Artist{
-					ID:                      v.ID,
-					IMAGE:                   v.IMAGE,
-					NAME:                    v.NAME,
-					MEMBERS:                 v.MEMBERS,
-					LOCATION_AND_DATES_link: v.LOCATION_AND_DATES.LocationDates,
-					CREATION_DATE:           v.CREATION_DATE,
-					FIRST_ALBUM:             v.FIRST_ALBUM,
-					RELATIONS:               v.RELATIONS,
+				res = append(res, Data_group{
+					ID:                 v.ID,
+					IMAGE:              v.IMAGE,
+					NAME:               v.NAME,
+					MEMBERS:            v.MEMBERS,
+					LOCATION_AND_DATES: v.LOCATION_AND_DATES,
+					CREATION_DATE:      v.CREATION_DATE,
+					FIRST_ALBUM:        v.FIRST_ALBUM,
 				})
 				break
 			}
@@ -200,6 +184,7 @@ func getURL(url string) (js []byte, err error) {
 
 func Add_stuckt(w http.ResponseWriter, jsonData1 []byte) ([]Artist, error) {
 	res := []Artist{}
+	// groups := []Artists2{}
 
 	var wg sync.WaitGroup
 	var mu sync.Mutex
@@ -211,7 +196,7 @@ func Add_stuckt(w http.ResponseWriter, jsonData1 []byte) ([]Artist, error) {
 		return nil, err
 	}
 
-	for i, v := range res_stuckt {
+	for _, v := range res_stuckt {
 		wg.Add(1)
 		go func(v Artist) {
 			defer wg.Done()
@@ -228,27 +213,25 @@ func Add_stuckt(w http.ResponseWriter, jsonData1 []byte) ([]Artist, error) {
 				// Обработка ошибок
 				return
 			}
+			lock := delete.LocationDates
 
 			mu.Lock()
 			res = append(res, Artist{
-				ID:                      v.ID,
-				IMAGE:                   v.IMAGE,
-				NAME:                    v.NAME,
-				MEMBERS:                 v.MEMBERS,
-				LOCATION_AND_DATES:      delete,
-				CREATION_DATE:           v.CREATION_DATE,
-				FIRST_ALBUM:             v.FIRST_ALBUM,
-				RELATIONS:               v.RELATIONS,
-				LOCATION_AND_DATES_link: v.LOCATION_AND_DATES.LocationDates,
+				ID:                 v.ID,
+				IMAGE:              v.IMAGE,
+				NAME:               v.NAME,
+				MEMBERS:            v.MEMBERS,
+				LOCATION_AND_DATES: lock,
+				CREATION_DATE:      v.CREATION_DATE,
+				FIRST_ALBUM:        v.FIRST_ALBUM,
+				RELATIONS:          v.RELATIONS,
 			})
-			fmt.Println(res[0].LOCATION_AND_DATES)
-			res = append(res[i].LOCATION_AND_DATES_link, res[i].LOCATION_AND_DATES)
 
 			mu.Unlock()
 		}(v)
 	}
-
 	wg.Wait()
+
 	return res, nil
 }
 

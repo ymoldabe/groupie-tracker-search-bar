@@ -173,7 +173,7 @@
     <div class="dates-locations">
       Dates and Locations:
       <ul>
-        {{range $date, $locations := .LOCATION_AND_DATES_link}}
+        {{range $date, $locations := .LOCATION_AND_DATES}}
           <li>{{$date}}:
             <ul>
               {{range $index, $location := $locations}}
