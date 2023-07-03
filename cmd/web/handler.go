@@ -1,6 +1,7 @@
 package main
 
 // https://github.com/ThreeDotsLabs/wild-workouts-go-ddd-example
+// https://github.com/nullism/bqb
 import (
 	"encoding/json"
 	"fmt"
