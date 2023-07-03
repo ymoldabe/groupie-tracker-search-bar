@@ -16,8 +16,8 @@
         <div class="search-container">
           <form action="/" method="POST" autocomplete="off">
             <input type="text" placeholder="Search.." name="search" list = "asd">
-            <!-- <datalist id = "asd">
-              {{range .}} 
+            <datalist id = "asd">
+              {{range .Artist}} 
               <option value="{{.NAME}}">{{.NAME}} - artist/band name</option>
               {{range .MEMBERS}}
               <option value="{{.}}">{{.}} - members</option>
@@ -29,7 +29,7 @@
               <option value="{{.CREATION_DATE}}">{{.CREATION_DATE}} - cretion date</option>
 
               {{end}}
-            </datalist>  -->
+            </datalist> 
             <button type="submit"><i class="fa fa-search"></i></button>
           </form>
         </div>
@@ -37,19 +37,14 @@
 
     <div class="content">
         <h2>Artists</h2>
-        {{range endStruct.Artist.IMAGE}}
-        <!-- <h2>{{.NAME}}</h2> -->
-        <img src="{{.IMAGE}}" alt="">
-
-        {{end}}
-        <!-- <div class="artist-container">
-            {{range .}}
+        <div class="artist-container">
+            {{range .Data_group}}
                 <div class="artist">
                     <img src="{{.IMAGE}}" alt="{{.NAME}}">
                     <div class="a"><a class="artist_references" href="/artist?id={{.ID}}">{{.NAME}}</a></div>
                 </div>
             {{end}}
-        </div> -->
-    <!-- </div> -->
+        </div>
+    </div>
 </body>
 </html>

@@ -1,5 +1,6 @@
 package main
 
+// https://github.com/ThreeDotsLabs/wild-workouts-go-ddd-example
 import (
 	"encoding/json"
 	"fmt"
@@ -88,7 +89,11 @@ func group(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		selections := Check_coincidence(w, find, all_data_group)
+		selections, check_struct := Check_coincidence(w, find, all_data_group)
+		if check_struct == 0 || len(find) == 0 {
+			Error(w, http.StatusBadRequest)
+			return
+		}
 		endStruct := Coincidence{
 			all_data_group,
 			selections,
@@ -103,13 +108,15 @@ func group(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func Check_coincidence(w http.ResponseWriter, find string, all_data_group []Artist) []Data_group {
+func Check_coincidence(w http.ResponseWriter, find string, all_data_group []Artist) ([]Data_group, int) {
 	res := []Data_group{}
 	flag := false
+	check_struct := 0
 	for _, v := range all_data_group {
 		if strings.Contains(strings.ToLower(v.NAME), strings.ToLower(find)) ||
 			strings.Contains(strconv.Itoa(v.CREATION_DATE), find) ||
 			strings.Contains(v.FIRST_ALBUM, find) {
+			check_struct++
 			// fmt.Println(v.LOCATION_AND_DATES.LocationDates)
 			res = append(res, Data_group{
 				ID:                 v.ID,
@@ -125,6 +132,7 @@ func Check_coincidence(w http.ResponseWriter, find string, all_data_group []Arti
 
 		for _, j := range v.MEMBERS {
 			if strings.Contains(strings.ToLower(j), strings.ToLower(find)) {
+				check_struct++
 				flag = true
 				res = append(res, Data_group{
 					ID:                 v.ID,
@@ -144,6 +152,7 @@ func Check_coincidence(w http.ResponseWriter, find string, all_data_group []Arti
 		}
 		for key := range v.LOCATION_AND_DATES {
 			if strings.Contains(strings.ToLower(key), strings.ToLower(find)) {
+				check_struct++
 				flag = true
 				// fmt.Println(v)
 				res = append(res, Data_group{
@@ -164,7 +173,7 @@ func Check_coincidence(w http.ResponseWriter, find string, all_data_group []Arti
 		}
 
 	}
-	return res
+	return res, check_struct
 }
 
 func getURL(url string) (js []byte, err error) {
